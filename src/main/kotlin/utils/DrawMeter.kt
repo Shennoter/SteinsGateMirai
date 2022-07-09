@@ -1,32 +1,80 @@
-package pers.shennoter
+package pers.shennoter.utils
 
+import com.google.gson.Gson
+import pers.shennoter.SteinsGate
+import pers.shennoter.bean.UniqueDivergence
 import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.InputStream
+import javax.imageio.ImageIO
 
-fun drawMeter(divergence: MutableList): BufferedImage{
-    var image: BufferedImage = number(divergence[0])
-    image = mergeImage(true, image, SteinsGate.getResource("0.jpg"))
-    for(i in (1..6)){
-        image = mergeImage(true, image, number(i))
+// 拼接辉光管图片
+fun drawMeter(divergence: MutableList<Int>): InputStream? {
+    var image: BufferedImage? = number(divergence[0])
+    if(image != null) {
+        image = mergeImage(true, image, ImageIO.read(SteinsGate.getResourceAsStream("dot.png")))
+        for (i in (1..6)) {
+            image = mergeImage(true, image!!, number(divergence[i])!!)
+        }
+        val os = ByteArrayOutputStream()
+        ImageIO.write(image, "jpeg", os)
+        return ByteArrayInputStream(os.toByteArray())
     }
-    return image
+    else{
+        return null
+    }
 }
 
-fun number(num: Int): BufferedImage{
+// 取出对应数字的辉光管图片
+fun number(num: Int): BufferedImage? {
     val numPic = when(num){
-        -1 -> SteinsGate.getResource("0.jpg")
-        0 -> SteinsGate.getResource("0.jpg")
-        1 -> SteinsGate.getResource("1.jpg")
-        2 -> SteinsGate.getResource("2.jpg")
-        3 -> SteinsGate.getResource("3.jpg")
-        4 -> SteinsGate.getResource("4.jpg")
-        5 -> SteinsGate.getResource("5.jpg")
-        6 -> SteinsGate.getResource("6.jpg")
-        7 -> SteinsGate.getResource("7.jpg")
-        8 -> SteinsGate.getResource("8.jpg")
-        9 -> SteinsGate.getResource("9.jpg")
-        else -> return null
+        -1 -> ImageIO.read(SteinsGate.getResourceAsStream("none.png"))
+        0 -> ImageIO.read(SteinsGate.getResourceAsStream("0.png"))
+        1 -> ImageIO.read(SteinsGate.getResourceAsStream("1.png"))
+        2 -> ImageIO.read(SteinsGate.getResourceAsStream("2.png"))
+        3 -> ImageIO.read(SteinsGate.getResourceAsStream("3.png"))
+        4 -> ImageIO.read(SteinsGate.getResourceAsStream("4.png"))
+        5 -> ImageIO.read(SteinsGate.getResourceAsStream("5.png"))
+        6 -> ImageIO.read(SteinsGate.getResourceAsStream("6.png"))
+        7 -> ImageIO.read(SteinsGate.getResourceAsStream("7.png"))
+        8 -> ImageIO.read(SteinsGate.getResourceAsStream("8.png"))
+        9 -> ImageIO.read(SteinsGate.getResourceAsStream("9.png"))
+        else -> null
     }
     return numPic
+}
+
+// 将String世界线变动率转换为MutableList<Int>
+fun strDiv2List(div: String):MutableList<Int>{
+    val buffer= div.split("").subList(1,8)
+    val divergence = mutableListOf(0)
+    buffer.forEach{
+        divergence.add(it.toInt())
+    }
+    return divergence.subList(1,8)
+}
+
+//  随机显示一个特殊世界线
+fun uniDiv():Pair<String,String>{
+    val gson = Gson()
+    val file = File("${SteinsGate.dataFolder}/UniDiv.json")
+    val div = gson.fromJson(file.readText(), UniqueDivergence::class.java)
+    val index = (0 until div.size).random()
+    val number = div[index].number[0] + "." + div[index].number.substring(1,7) + "%" + "\n"
+    val abstract = "● " + div[index].abstract
+    var detail = ""
+    if(div[index].detail != "") {
+        div[index].detail.split('\n').forEach {
+            detail += "○ $it\n"
+        }
+        detail = "\n" + detail
+    }
+    return if(abstract != ""){
+        Pair(div[index].number,number + abstract + detail)
+    }
+    else Pair(div[index].number,number + detail)
 }
 
 //拼接图片

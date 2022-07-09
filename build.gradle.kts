@@ -12,4 +12,9 @@ version = "0.1.0"
 repositories {
     maven("https://maven.aliyun.com/repository/public")
     mavenCentral()
+    google()
+}
+
+dependencies {
+    implementation("com.google.code.gson:gson:2.9.0")
 }

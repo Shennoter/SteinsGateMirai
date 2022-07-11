@@ -48,12 +48,22 @@ fun number(num: Int): BufferedImage? {
 
 // 将String世界线变动率转换为MutableList<Int>
 fun strDiv2List(div: String):MutableList<Int>{
-    val buffer= div.split("").subList(1,8)
-    val divergence = mutableListOf(0)
-    buffer.forEach{
-        divergence.add(it.toInt())
+    if(div[0] == '-'){
+        val divergence = mutableListOf(-1)
+        val buffer= div.split("").subList(2, 9)
+        buffer.forEach{
+            divergence.add(it.toInt())
+        }
+        return divergence
     }
-    return divergence.subList(1,8)
+    else {
+        val buffer = div.split("").subList(1, 8)
+        val divergence = mutableListOf(0)
+        buffer.forEach {
+            divergence.add(it.toInt())
+        }
+        return divergence.subList(1, 8)
+    }
 }
 
 //  随机显示一个特殊世界线
@@ -63,7 +73,12 @@ fun uniDiv():Pair<String,String>{
     val div = gson.fromJson(file.readText(), UniqueDivergence::class.java)
     val index = (0 until div.size).random()
     val number = div[index].number[0] + "." + div[index].number.substring(1,7) + "%" + "\n"
-    val abstract = "● " + div[index].abstract
+    val abstract = if(div[index].abstract == ""){
+        div[index].abstract
+    }
+    else{
+        "● " + div[index].abstract
+    }
     var detail = ""
     if(div[index].detail != "") {
         div[index].detail.split('\n').forEach {

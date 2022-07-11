@@ -6,6 +6,7 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.utils.info
 import pers.shennoter.config.Config
+import pers.shennoter.config.Custom
 import pers.shennoter.utils.dQQ
 import pers.shennoter.utils.saveFile
 
@@ -25,6 +26,7 @@ object SteinsGate : KotlinPlugin(
         CommandManager.registerCommand(UniqueDivergenceMeter)
         CommandManager.registerCommand(SGTimelineobj)
         Config.reload()
+        Custom.reload()
         saveFile()
         dQQ()
         logger.info { "EL PSY KONGROO" }
@@ -32,6 +34,7 @@ object SteinsGate : KotlinPlugin(
 
     override fun onDisable() {
         Config.save()
+        Custom.save()
         CommandManager.unregisterCommand(DivergenceMeter)
         CommandManager.unregisterCommand(UniqueDivergenceMeter)
         CommandManager.unregisterCommand(SGTimelineobj)
